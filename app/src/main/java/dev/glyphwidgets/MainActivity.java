@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private EditText city;
+    private EditText note;
     private TextView status;
     private int pad(float dp) { return (int)(dp * getResources().getDisplayMetrics().density + .5f); }
     @Override public void onCreate(Bundle b) { super.onCreate(b); getWindow().setStatusBarColor(Color.rgb(8,8,8)); getWindow().setNavigationBarColor(Color.rgb(8,8,8)); build(); }
@@ -34,13 +35,15 @@ public class MainActivity extends Activity {
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(page);
         page.addView(text("GLYPH\nWIDGETS",34,white,true)); TextView intro=text("Минималистичные виджеты для любого Android",14,grey,false); intro.setPadding(0,pad(10),0,pad(24)); page.addView(intro);
         page.addView(text("КОЛЛЕКЦИЯ",11,red,true));
-        addCard(page,"01  /  CLOCK","Время и дата • обновляется системой"); addCard(page,"02  /  WEATHER","Текущая температура • Open-Meteo");
-        addCard(page,"03  /  PEDOMETER","Шаги за день • датчик телефона"); addCard(page,"04  /  BATTERY","Заряд и состояние батареи"); addCard(page,"05  /  SCREEN TIME","Общее время использования за день");
+        addCard(page,"01 / DIGITAL CLOCK","Точечный цифровой формат времени и даты"); addCard(page,"02 / METRO CLOCK","Крупные часы с датой"); addCard(page,"03 / ORBIT CLOCK","Орбитальный циферблат");
+        addCard(page,"04 / WEATHER","Текущая температура • Open-Meteo"); addCard(page,"05 / PEDOMETER","Шаги за день • датчик телефона"); addCard(page,"06 / BATTERY RING","Кольцо уровня заряда"); addCard(page,"07 / BATTERY BARS","Заряд полосой"); addCard(page,"08 / SCREEN TIME","Общее время использования за день");
+        addCard(page,"09 / TIMER","Запуск, пауза, сброс и +1 минута"); addCard(page,"10 / WATER","Счётчик стаканов на сегодня"); addCard(page,"11 / QUOTE","Цитаты по нажатию"); addCard(page,"12 / STICKY NOTE","Сохранённая заметка"); addCard(page,"13 / WORLD CLOCK","Москва, Лондон и Токио"); addCard(page,"14 / LIFE IN DOTS","Прогресс текущего дня");
         page.addView(text("НАСТРОЙКИ",11,red,true),lp(-1,-2,8,10));
         city=new EditText(this); city.setSingleLine(true); city.setTextColor(white); city.setHintTextColor(grey); city.setHint("Город, например Moscow"); city.setText(getSharedPreferences("glyph",0).getString("city","Moscow")); city.setPadding(pad(12),0,pad(12),0); city.setBackgroundColor(Color.rgb(25,25,25)); page.addView(city,lp(-1,54,0,12));
+        note=new EditText(this); note.setMinLines(2); note.setMaxLines(4); note.setTextColor(white); note.setHintTextColor(grey); note.setHint("Текст заметки для виджета"); note.setText(getSharedPreferences("glyph",0).getString("note","")); note.setPadding(pad(12),pad(8),pad(12),pad(8)); note.setBackgroundColor(Color.rgb(25,25,25)); page.addView(note,lp(-1,-2,0,12));
         Switch format=new Switch(this); format.setText("24-часовой формат"); format.setTextColor(white); format.setChecked(getSharedPreferences("glyph",0).getBoolean("24h",true)); page.addView(format,lp(-1,48,0,8));
         Button save=button("СОХРАНИТЬ НАСТРОЙКИ"); page.addView(save,lp(-1,52,0,8));
-        save.setOnClickListener(v->{getSharedPreferences("glyph",0).edit().putString("city",city.getText().toString().trim().isEmpty()?"Moscow":city.getText().toString().trim()).putBoolean("24h",format.isChecked()).apply(); GlyphWidgetProvider.refreshData(this); status.setText("ГОТОВО  /  ВИДЖЕТЫ ОБНОВЛЯЮТСЯ");});
+        save.setOnClickListener(v->{getSharedPreferences("glyph",0).edit().putString("city",city.getText().toString().trim().isEmpty()?"Moscow":city.getText().toString().trim()).putString("note",note.getText().toString().trim().isEmpty()?"Нажмите, чтобы оставить заметку":note.getText().toString().trim()).putBoolean("24h",format.isChecked()).apply(); GlyphWidgetProvider.refreshData(this); status.setText("ГОТОВО  /  ВИДЖЕТЫ ОБНОВЛЯЮТСЯ");});
         Button steps=button("РАЗРЕШИТЬ ДОСТУП К ШАГАМ"); page.addView(steps,lp(-1,50,0,8)); steps.setOnClickListener(v->{if(Build.VERSION.SDK_INT>=29 && checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION)!=PackageManager.PERMISSION_GRANTED) requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION},41); else {Steps.read(this); status.setText("ДАТЧИК ШАГОВ ВКЛЮЧЁН");}});
         Button usage=button("РАЗРЕШИТЬ СТАТИСТИКУ ЭКРАНА"); page.addView(usage,lp(-1,50,0,8)); usage.setOnClickListener(v->startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
         status=text("НАЖМИТЕ ВИДЖЕТ, ЧТОБЫ ОБНОВИТЬ ДАННЫЕ",10,grey,true); status.setPadding(0,pad(18),0,0); page.addView(status);
